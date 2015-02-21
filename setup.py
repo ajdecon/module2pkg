@@ -8,4 +8,5 @@ setup(name='module2pkg',
       author="Adam DeConinck",
       author_email="ajdecon@ajdecon.org",
       url="http://www.github.com/ajdecon/module2pkg",
+      license='BSD',
       scripts=['module2pkg'])
