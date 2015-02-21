@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+#
+# module2pkg - Build an OS package from an environment module.
 
 import re
 import sys
@@ -15,6 +17,7 @@ def main():
     for mod in mods:
         build_package(mod, options.pkgtype, options.prefix)
 
+# Get command line arguments
 def getopts():
     parser = OptionParser()
     parser.add_option("-t", "--type", dest="pkgtype", default="rpm",
@@ -24,10 +27,12 @@ def getopts():
     (options, args) = parser.parse_args()
     return (options, args)
 
+# Print a failure message and exit
 def failmsg(msg):
     sys.stderr.write("%s\n" % msg)
     sys.exit(1)
 
+# Get the full path to the modulefile for a given module
 def module2path(modname):
     modshow = subprocess.Popen(['modulecmd', 'python', 'show', modname],
                                stdout=subprocess.PIPE,
@@ -35,6 +40,7 @@ def module2path(modname):
     modlines = modshow.split('\n')
     return modlines[1][:-1]
 
+# Get the root directory of a module
 def get_root(modname):
     modulefile = module2path(modname)
     check_root = re.compile("^\s*set\s+root\s+(.+)$")
@@ -47,6 +53,7 @@ def get_root(modname):
             break
     return root
 
+# Get the list of "module load" or "prereq" dependencies for a module
 def get_dependencies(modname):
     modulefile = module2path(modname)
     check_load = re.compile("^\s*module\s+load(.+)$")
@@ -67,18 +74,22 @@ def get_dependencies(modname):
         deps = deps.union(get_dependencies(dep))
     return deps
 
+# Get the version in a module name
 def module_version(modname):
     return modname.split('/')[-1]
 
+# Get the name from a module name
 def module_name(modname):
     return modname.split('/')[0]
 
+# Fix up a prefix string for an RPM name
 def fix_prefix(prefix):
     if prefix != "":
        if prefix[-1] != '-':
            prefix = "%s-" % prefix
     return prefix
 
+# Build a list of package dependencies for the FPM command
 def get_rpm_deps(modname, prefix):
     deps = get_dependencies(modname)
     rpm_deps = set()
@@ -86,6 +97,7 @@ def get_rpm_deps(modname, prefix):
         rpm_deps.add("%s%s = %s" % (prefix, module_name(dep), module_version(dep)))
     return rpm_deps
 
+# Build an OS package using FPM
 def build_package(modname, pkgtype, prefix):
     root = get_root(modname)
     mname = module_name(modname).strip()
