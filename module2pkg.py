@@ -79,17 +79,31 @@ def fix_prefix(prefix):
            prefix = "%s-" % prefix
     return prefix
 
+def get_rpm_deps(modname, prefix):
+    deps = get_dependencies(modname)
+    rpm_deps = set()
+    for dep in deps:
+        rpm_deps.add("%s%s = %s" % (prefix, module_name(dep), module_version(dep)))
+    return rpm_deps
+
 def build_package(modname, pkgtype, prefix):
     root = get_root(modname)
     mname = module_name(modname).strip()
     version = module_version(modname).strip()
     prefix = fix_prefix(prefix)
+
+    rpm_deps = get_rpm_deps(modname, prefix)
+
     if mname == version: version = 'NOVERSION'
     mname = "%s%s" % (prefix, mname)
     mpath = module2path(modname)
-    cmd = "fpm -s dir -t %s -n %s -v %s -p %s-VERSION_ARCH.%s -C / %s %s" % (pkgtype, mname, version, mname, pkgtype, root, mpath)
+
+    cmd = "fpm -s dir -t %s -n %s -v %s -p %s-VERSION_ARCH.%s" % (pkgtype, mname, version, mname, pkgtype)
+    for rpm_dep in rpm_deps:
+        cmd = "%s -d \"%s\"" % (cmd, rpm_dep)
+    cmd = "%s -C / %s %s" % (cmd, root, mpath)
     print cmd
-    p = subprocess.Popen(cmd.split())
+    p = subprocess.Popen(cmd, shell=True)
     p.wait()
 
 if __name__ == '__main__':
