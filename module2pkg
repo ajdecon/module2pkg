@@ -15,7 +15,7 @@ def main():
         deps = get_dependencies(arg)
         mods = mods.union(deps)
     for mod in mods:
-        build_package(mod, options.pkgtype, options.prefix)
+        build_package(mod, options.pkgtype, options.prefix, opts.dryrun)
 
 # Get command line arguments
 def getopts():
@@ -24,6 +24,8 @@ def getopts():
                       help="Type of package to build")
     parser.add_option("-p", "--prefix", dest="prefix", default="",
                       help="Package name prefix")
+    parser.add_option("-d", "--dry-run", dest="dryrun", action="store_true",
+                      default=False, help="Print FPM commands but do not execute them")
     (options, args) = parser.parse_args()
     return (options, args)
 
@@ -98,7 +100,7 @@ def get_rpm_deps(modname, prefix):
     return rpm_deps
 
 # Build an OS package using FPM
-def build_package(modname, pkgtype, prefix):
+def build_package(modname, pkgtype, prefix, dryrun):
     root = get_root(modname)
     mname = module_name(modname).strip()
     version = module_version(modname).strip()
@@ -115,8 +117,9 @@ def build_package(modname, pkgtype, prefix):
         cmd = "%s -d \"%s\"" % (cmd, rpm_dep)
     cmd = "%s -C / %s %s" % (cmd, root, mpath)
     print cmd
-    p = subprocess.Popen(cmd, shell=True)
-    p.wait()
+    if not dryrun:
+        p = subprocess.Popen(cmd, shell=True)
+        p.wait()
 
 if __name__ == '__main__':
     main()
