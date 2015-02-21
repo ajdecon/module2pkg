@@ -15,7 +15,7 @@ def main():
         deps = get_dependencies(arg)
         mods = mods.union(deps)
     for mod in mods:
-        build_package(mod, options.pkgtype, options.prefix, opts.dryrun)
+        build_package(mod, options.pkgtype, options.prefix, options.dryrun)
 
 # Get command line arguments
 def getopts():
