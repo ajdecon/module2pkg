@@ -19,7 +19,7 @@ to build DEB packages (via FPM) but I haven't tested this yet.
 Requirements
 ------------
 
-* There must be a 'modulecmd' tool which can be used to query available modules.
+* environment-modules must be installed (currently doesn't work with Lmod)
 * The [fpm](https://github.com/jordansissel/fpm) tool must be available to build
   the OS packages.
 
