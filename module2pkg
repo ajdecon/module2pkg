@@ -96,7 +96,7 @@ def get_rpm_deps(modname, prefix):
     deps = get_dependencies(modname)
     rpm_deps = set()
     for dep in deps:
-        rpm_deps.add("%s%s = %s" % (prefix, module_name(dep), module_version(dep)))
+        rpm_deps.add("%s%s = %s-1" % (prefix, module_name(dep), module_version(dep))) # -1 = release
     return rpm_deps
 
 # Build an OS package using FPM
