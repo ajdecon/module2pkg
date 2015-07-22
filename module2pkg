@@ -101,23 +101,35 @@ def get_rpm_deps(modname, prefix):
             module_version(dep).replace('-','_') ))             # fpm replaces - with _ in versions 
     return rpm_deps
 
+# Build a list of package dependencies for the FPM command
+def get_deb_deps(modname, prefix):
+    deps = get_dependencies(modname)
+    deb_deps = set()
+    for dep in deps:
+        deb_deps.add("%s%s" % (prefix, module_name(dep))
+    return deb_deps
+
 # Build an OS package using FPM
 def build_package(modname, pkgtype, prefix, dryrun):
     root = get_root(modname)
     mname = module_name(modname).strip()
-    version = "0.1_m2p"
+    version = "0.1m2p"
     #version = module_version(modname).strip()
     prefix = fix_prefix(prefix)
 
-    rpm_deps = get_rpm_deps(modname, prefix)
+    pkg_deps = set()
+    if pkgtype == 'rpm':
+        pkg_deps = get_rpm_deps(modname, prefix)
+    elif pkgtype == 'deb':
+        pkg_deps = get_deb_deps(modname, prefix)
 
     if mname == version: version = 'NOVERSION'
     mname = "%s%s" % (prefix, mname)
     mpath = module2path(modname)
 
     cmd = "fpm -s dir -t %s -n %s -v %s --provides %s -p %s-VERSION_ARCH.%s" % (pkgtype, mname, version, mname, mname, pkgtype)
-    for rpm_dep in rpm_deps:
-        cmd = "%s -d \"%s\"" % (cmd, rpm_dep)
+    for pkg_dep in pkg_deps:
+        cmd = "%s -d \"%s\"" % (cmd, pkg_dep)
     cmd = "%s -C / %s %s" % (cmd, root, mpath)
     print cmd
     if not dryrun:
