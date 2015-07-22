@@ -106,7 +106,7 @@ def get_deb_deps(modname, prefix):
     deps = get_dependencies(modname)
     deb_deps = set()
     for dep in deps:
-        deb_deps.add("%s%s" % (prefix, module_name(dep))
+        deb_deps.add("%s%s" % (prefix, module_name(dep)))
     return deb_deps
 
 # Build an OS package using FPM
