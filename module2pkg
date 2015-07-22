@@ -105,7 +105,7 @@ def get_rpm_deps(modname, prefix):
 def build_package(modname, pkgtype, prefix, dryrun):
     root = get_root(modname)
     mname = module_name(modname).strip()
-    version = "module2pkg_0.1"
+    version = "0.1_m2p"
     #version = module_version(modname).strip()
     prefix = fix_prefix(prefix)
 
