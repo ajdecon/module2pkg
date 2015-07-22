@@ -82,7 +82,8 @@ def module_version(modname):
 
 # Get the name from a module name
 def module_name(modname):
-    return modname.split('/')[0]
+    name_parts = modname.split('/')
+    return "%s-%s" % (name_parts[0], name_parts[1])
 
 # Fix up a prefix string for an RPM name
 def fix_prefix(prefix):
@@ -104,7 +105,8 @@ def get_rpm_deps(modname, prefix):
 def build_package(modname, pkgtype, prefix, dryrun):
     root = get_root(modname)
     mname = module_name(modname).strip()
-    version = module_version(modname).strip()
+    version = "module2pkg_0.1"
+    #version = module_version(modname).strip()
     prefix = fix_prefix(prefix)
 
     rpm_deps = get_rpm_deps(modname, prefix)
@@ -113,7 +115,7 @@ def build_package(modname, pkgtype, prefix, dryrun):
     mname = "%s%s" % (prefix, mname)
     mpath = module2path(modname)
 
-    cmd = "fpm -s dir -t %s -n %s -v %s -p %s-VERSION_ARCH.%s" % (pkgtype, mname, version, mname, pkgtype)
+    cmd = "fpm -s dir -t %s -n %s -v %s --provides %s -p %s-VERSION_ARCH.%s" % (pkgtype, mname, version, mname, mname, pkgtype)
     for rpm_dep in rpm_deps:
         cmd = "%s -d \"%s\"" % (cmd, rpm_dep)
     cmd = "%s -C / %s %s" % (cmd, root, mpath)
